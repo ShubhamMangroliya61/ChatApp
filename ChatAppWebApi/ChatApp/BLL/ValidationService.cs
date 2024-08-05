@@ -124,7 +124,7 @@ namespace ChatAppWebApi.BLL
                     errorCode = CustomErrorCode.InvalidChatId
                 });
             }
-            if (!_dbcontext.Chats.Any(m => m.ChatId == chatId && m.IsDeleted != true))
+            if (!_dbcontext.Chats.Any(m => m.Chatid == chatId && m.Isdeleted != true))
             {
                 errors.Add(new ValidationError
                 {
