@@ -49,7 +49,7 @@ namespace ChatAppWebApi.BLL
            
             await _dbcontext.SaveChangesAsync();
             user.Password = "";
-            //egfdgfgdfgfg
+
             UserDTO userDTO = new()
             {
                 UserId = user.Userid,

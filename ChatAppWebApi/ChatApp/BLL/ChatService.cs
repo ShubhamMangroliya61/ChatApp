@@ -49,38 +49,51 @@ namespace ChatAppWebApi.BLL
 
         public async Task<PaginationResponceDTO<ChatDTO>> GetChatListAsync(PaginationRequestDTO model)
         {
-            long UserId = _helper.GetUserIdClaim();
+            long userId = _helper.GetUserIdClaim();
 
-            IQueryable<ChatDTO> fromChats = _dbcontext.Chats.Include(m => m.Messages).Where(m => m.Isdeleted == false && m.Fromuserid == UserId).Include(m => m.Touser)
+            // Query for chats initiated by the current user (fromChats)
+            IQueryable<ChatDTO> fromChatsQuery = _dbcontext.Chats
+                .Include(m => m.Messages)
+                .Where(m => !m.Isdeleted && m.Fromuserid == userId && 
+                      (string.IsNullOrEmpty(model.SearchName) ||
+                            (m.Touser.Username ?? string.Empty).ToLower().Contains(model.SearchName.ToLower())))
+                .Include(m => m.Touser)
                 .Select(m => new ChatDTO
                 {
                     ChatId = m.Chatid,
                     ToUserId = m.Touser.Userid,
                     ToUserName = m.Touser.Username,
                     ProfileName = m.Touser.Profilepicturename,
-                    CreatedDate = m.Createddate,
+                    CreatedDate = m.Messages.OrderByDescending(m => m.Createddate).First().Createddate,
                     LastMessage = m.Messages.OrderByDescending(m => m.Createddate).First().Messagetext,
                     Unread = m.Messages.Count(msg => msg.Isseen == false && msg.Isdelivered == true)
                 });
 
-            IQueryable<ChatDTO> toChats = _dbcontext.Chats.Include(m => m.Messages).Where(m => m.Isdeleted == false && m.Touserid == UserId).Include(m => m.Fromuser)
-                 .Select(m => new ChatDTO
-                 {
-                     ChatId = m.Chatid,
-                     ToUserId = m.Fromuser.Userid,
-                     ToUserName = m.Fromuser.Username,
-                     ProfileName = m.Fromuser.Profilepicturename,
-                     CreatedDate = m.Createddate,
-                     LastMessage = m.Messages.OrderByDescending(m => m.Createddate).First().Messagetext,
-                     Unread = m.Messages.Count(msg => msg.Isseen == false && msg.Isdelivered == true)
-                 });
+            // Query for chats received by the current user (toChats)
+            IQueryable<ChatDTO> toChatsQuery = _dbcontext.Chats
+                .Include(m => m.Messages)
+                .Where(m => !m.Isdeleted && m.Touserid == userId &&
+                           (string.IsNullOrEmpty(model.SearchName) ||
+                            (m.Fromuser.Username ?? string.Empty).ToLower().Contains(model.SearchName.ToLower())))
+                .Include(m => m.Fromuser)
+                .Select(m => new ChatDTO
+                {
+                    ChatId = m.Chatid,
+                    ToUserId = m.Fromuser.Userid,
+                    ToUserName = m.Fromuser.Username,
+                    ProfileName = m.Fromuser.Profilepicturename,
+                    CreatedDate = m.Messages.OrderByDescending(m => m.Createddate).First().Createddate,
+                    LastMessage = m.Messages.OrderByDescending(m => m.Createddate).First().Messagetext,
+                    Unread = m.Messages.Count(msg => msg.Isseen == false && msg.Isdelivered == true)
+                });
 
-            IQueryable<ChatDTO> allChats = fromChats.Concat(toChats).Distinct().OrderByDescending(m => m.CreatedDate);
+            IQueryable<ChatDTO> allChatsQuery = fromChatsQuery.Concat(toChatsQuery).Distinct().OrderByDescending(m => m.CreatedDate);
 
-            int totalRecords = await allChats.CountAsync();
+            int totalRecords = await allChatsQuery.CountAsync();
+
             int requiredPages = (int)Math.Ceiling((decimal)totalRecords / model.PageSize);
 
-            List<ChatDTO> chats = await allChats
+            List<ChatDTO> chats = await allChatsQuery
                 .Skip((model.PageNumber - 1) * model.PageSize)
                 .Take(model.PageSize)
                 .ToListAsync();
@@ -106,5 +119,6 @@ namespace ChatAppWebApi.BLL
                 Record = chatDTOs
             };
         }
+
     }
 }

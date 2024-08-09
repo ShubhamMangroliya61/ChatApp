@@ -25,16 +25,16 @@ namespace ChatApp.Controllers
 
         [HttpPost("GetMessagesListAsync")]
         [Authorize]
-        public async Task<ActionResult> GetMessagesListAsync([FromBody] RequestDTO<MessagesReqDTO> model)
+        public async Task<ActionResult> GetMessagesListAsync(long chatId)
         {
             try
             {
-                List<ValidationError> errors = _validationService.ValidateChatId(model.Model.ChatId);
+                List<ValidationError> errors = _validationService.ValidateChatId(chatId);
                 if (errors.Any())
                 {
                     return BadRequest(_responseHandler.BadRequest(CustomErrorCode.IsValid, CustomErrorMessage.ValidationChat, errors));
                 }
-                PaginationResponceDTO<MessageDTO> data = await _messageService.GetMessagesListAsync(model);
+                PaginationResponceDTO<MessageDTO> data = await _messageService.GetMessagesListAsync(chatId);
                 if (data == null)
                 {
                     return BadRequest(_responseHandler.BadRequest(CustomErrorCode.IsGetLIst, CustomErrorMessage.GetFollowerList, ""));

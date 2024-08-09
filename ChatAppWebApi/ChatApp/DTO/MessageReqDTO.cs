@@ -7,5 +7,6 @@
         public string? Messages { get; set; }
         public bool IsDeliverd { get; set; }
         public long FromUserId { get; set; }
+        public long ReplyMessId { get; set; }
     }
 }

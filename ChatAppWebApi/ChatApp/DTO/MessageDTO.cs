@@ -9,6 +9,9 @@
         public string? MessageText { get; set; }
         public bool IsSeen { get; set; }
         public bool IsDeliverd { get; set; }
+        public long? ReplyOfMessageId { get; set; }
+        public string? Title { get; set; }
+        public string? ReplyOfMessageText { get; set; }
         public DateTime? CreatedDate { get; set; }
 
     }

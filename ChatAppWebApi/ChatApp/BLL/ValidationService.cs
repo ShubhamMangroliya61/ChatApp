@@ -178,7 +178,6 @@ namespace ChatAppWebApi.BLL
             }
             return errors;
         }
-
         public List<ValidationError> ValidateRegistration(UserDTO model)
         {
             if (model.UserId == 0)
@@ -216,7 +215,6 @@ namespace ChatAppWebApi.BLL
             }
             return errors;
         }
-
         public List<ValidationError> ValidateLogin(LoginRequestDTO model)
         {
             ValidateEmail(model.Email??string.Empty);

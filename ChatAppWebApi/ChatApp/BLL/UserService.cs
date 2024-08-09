@@ -126,7 +126,7 @@ namespace ChatAppWebApi.BLL
             IQueryable<UserDTO> data = _dbcontext.Users
                  .Where(m => m.Isdeleted == false && m.Userid != logInUserId &&
                             (string.IsNullOrEmpty(model.SearchName) ||
-                            (m.Username ?? string.Empty).ToLower().Contains(model.SearchName.ToLower())))
+                            (m.Username ?? string.Empty).ToLower().Contains(model.SearchName.ToLower())) )
                  .Select(user => new UserDTO
                  {
                      UserId = user.Userid,

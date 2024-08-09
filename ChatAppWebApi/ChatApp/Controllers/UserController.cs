@@ -172,5 +172,37 @@ namespace ChatApp.Controllers
                 }
             }
         }
+
+        [HttpGet("GetLoginUser")]
+        [Authorize]
+        public async Task<ActionResult> GetLoginUserData()
+        {
+            try
+            {
+                long userId =_helper.GetUserIdClaim();
+                List<ValidationError> errors = _validationService.ValidateUserId(userId);
+                if (errors.Any())
+                {
+                    return BadRequest(_responseHandler.BadRequest(CustomErrorCode.IsValid, CustomErrorMessage.ExitsUser, errors));
+                }
+                UserDTO data = await _userService.GetUserByIdAsync(userId);
+                if (data == null)
+                {
+                    return BadRequest(_responseHandler.BadRequest(CustomErrorCode.IsNotExits, CustomErrorMessage.ExitsUser, ""));
+                }
+                return Ok(_responseHandler.Success(CustomErrorMessage.GetUser, data));
+            }
+            catch (Exception ex)
+            {
+                if (ex is ValidationException vx)
+                {
+                    return BadRequest(_responseHandler.BadRequest(vx.ErrorCode, vx.Message, vx.Errors));
+                }
+                else
+                {
+                    return BadRequest(_responseHandler.BadRequest(CustomErrorCode.IsGetLIst, ex.Message, ""));
+                }
+            }
+        }
     }
 }

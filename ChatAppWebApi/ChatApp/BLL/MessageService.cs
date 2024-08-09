@@ -1,6 +1,7 @@
 ﻿using ChatApp.Hubs;
 using ChatAppWebApi.DAL.Models;
 using ChatAppWebApi.DTO;
+using ChatAppWebApi.Interface;
 using DataAccess.CustomModel;
 using InstagramWebAPI.Helpers;
 using Microsoft.AspNetCore.SignalR;
@@ -8,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChatAppWebApi.BLL
 {
-    public class MessageService
+    public class MessageService : IMessageService
     {
         public readonly ChatDbContext _dbcontext;
         private readonly IHubContext<ChatHub> _hubContext;
@@ -21,9 +22,10 @@ namespace ChatAppWebApi.BLL
             _helper = helper;
         }
 
-        public async Task<PaginationResponceDTO<MessageDTO>> GetMessagesListAsync(RequestDTO<MessagesReqDTO> model)
+        public async Task<PaginationResponceDTO<MessageDTO>> GetMessagesListAsync(long chatId)
         {
-            IQueryable<MessageDTO> messages = _dbcontext.Messages.Where(m => m.Isdeleted == false && m.Chatid == model.Model.ChatId)
+            IQueryable<MessageDTO> messages = _dbcontext.Messages.Where(m => m.Isdeleted == false && m.Chatid == chatId)
+                .OrderBy(m => m.Createddate)
                 .Select(m => new MessageDTO
                 {
                     MessagesId = m.Messageid,
@@ -33,23 +35,20 @@ namespace ChatAppWebApi.BLL
                     MessageText = m.Messagetext,
                     IsSeen = m.Isseen,
                     IsDeliverd = m.Isdelivered,
+                    ReplyOfMessageId =m.Replyofmessageid,
+                    ReplyOfMessageText = _dbcontext.Messages.Where(n => n.Messageid == m.Replyofmessageid).Select(n => n.Messagetext).FirstOrDefault(),
+                    Title = _dbcontext.Messages.Where(n => n.Messageid == m.Replyofmessageid).Select(n => n.Fromuser.Username).FirstOrDefault(),
                     CreatedDate = m.Createddate,
                 });
 
             int totalRecords = await messages.CountAsync();
-            int requiredPages = (int)Math.Ceiling((decimal)totalRecords / model.PageSize);
 
             List<MessageDTO> messages1 = await messages
-                .Skip((model.PageNumber - 1) * model.PageSize)
-                .Take(model.PageSize)
                 .ToListAsync();
 
             return new PaginationResponceDTO<MessageDTO>
             {
                 Totalrecord = totalRecords,
-                PageSize = model.PageSize,
-                PageNumber = model.PageNumber,
-                RequirdPage = requiredPages,
                 Record = messages1
             };
         }
@@ -62,7 +61,8 @@ namespace ChatAppWebApi.BLL
                 Fromuserid = model.FromUserId,
                 Touserid = model.ToUserId,
                 Messagetext = model.Messages ?? "",
-                Isdelivered = model.IsDeliverd
+                Isdelivered = model.IsDeliverd,
+                Replyofmessageid = model.ReplyMessId
             };
 
             await _dbcontext.Messages.AddAsync(message);
@@ -77,6 +77,9 @@ namespace ChatAppWebApi.BLL
                 MessageText = message.Messagetext,
                 IsSeen = message.Isseen,
                 IsDeliverd = model.IsDeliverd,
+                ReplyOfMessageId = model.ReplyMessId,
+                ReplyOfMessageText = _dbcontext.Messages.Where(n => n.Messageid == model.ReplyMessId).Select(n => n.Messagetext).FirstOrDefault(),
+                Title = _dbcontext.Messages.Where(n => n.Messageid == model.ReplyMessId).Select(n => n.Fromuser.Username).FirstOrDefault(),
                 CreatedDate = message.Createddate
             };
         }

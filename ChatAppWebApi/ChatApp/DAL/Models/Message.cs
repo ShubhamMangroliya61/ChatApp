@@ -40,6 +40,9 @@ public partial class Message
     [Column("modifieddate", TypeName = "timestamp without time zone")]
     public DateTime? Modifieddate { get; set; }
 
+    [Column("replyofmessageid")]
+    public long? Replyofmessageid { get; set; }
+
     [ForeignKey("Chatid")]
     [InverseProperty("Messages")]
     public virtual Chat Chat { get; set; } = null!;

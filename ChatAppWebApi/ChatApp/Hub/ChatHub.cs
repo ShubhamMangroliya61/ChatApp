@@ -61,7 +61,7 @@ namespace ChatApp.Hubs
             return claims.FirstOrDefault(m => m.Type == "UserId").Value;
         }
 
-        public async Task<MessageDTO> SendMessageToUser(long toUserId, string message,long chatId)
+        public async Task<MessageDTO> SendMessageToUser(long toUserId, string message,long chatId,long replyMessId)
         {
             ConnectedUsers.TryGetValue(toUserId.ToString(), out var connectionId);
             MessageReqDTO messReq = new ()
@@ -70,6 +70,7 @@ namespace ChatApp.Hubs
                 ToUserId = toUserId,
                 FromUserId = Int32.Parse(GetClaimUserId()),
                 Messages = message,
+                ReplyMessId = replyMessId,
                 IsDeliverd = connectionId != null ? true : false
             };
 

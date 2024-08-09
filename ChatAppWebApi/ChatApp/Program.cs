@@ -11,6 +11,7 @@ using Serilog;
 using System.Text;
 using ChatApp.Common;
 using InstagramWebAPI.Helpers;
+using ChatApp.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,7 @@ builder.Services.AddSignalR();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IValidationService, ValidationService>();
 builder.Services.AddScoped<IJWTService, JWTService>();
 builder.Services.AddScoped<ResponseHandler>();
@@ -123,7 +125,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
+app.MapHub<ChatHub>("/chatHub");
 
 try
 {
