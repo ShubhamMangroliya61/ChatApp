@@ -1,13 +1,17 @@
 import { HubConnectionBuilder } from '@microsoft/signalr';
 
-const token = localStorage.getItem("token");
+
+const getToken =() =>{
+    const token = localStorage.getItem("token");
+   return `Bearer ${token}`
+}
 const connection = new HubConnectionBuilder()
-    .withUrl("https://683c-14-99-103-154.ngrok-free.app/chatHub", {
-        accessTokenFactory: () => `Bearer ${token}`,
+    .withUrl("https://localhost:7121/chatHub", {
+        accessTokenFactory: ()=>getToken(),
         withCredentials: false,
 
     })
-    .withAutomaticReconnect([0, 2000, 10000, 30000])
+    .withAutomaticReconnect()
     .build();
 
 export default connection;

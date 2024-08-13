@@ -103,7 +103,7 @@ const authSlice = createSlice({
                 state.ErrorMessage = "";
                 state.token = action.payload.data.token;
                 state.isLoggedIn = true;
-                localStorage.setItem("token", state.token);
+                localStorage.setItem("token", action.payload.data.token);
                 localStorage.setItem("isLoggedIn", "true");
                 try {
                     const decodedToken = jwtDecode(state.token);

@@ -10,6 +10,7 @@ import Message from '../../Components/Message/Message';
 import SearchUser from '../../Components/SearchModal/SearchUser'
 import Profile from '../../Components/Profile/Profile';
 import { X } from "@phosphor-icons/react";
+
 function Home() {
     const [openModal, setOpenModal] = useState(false);
     const [chatList, setChatList] = useState([]);
@@ -32,8 +33,11 @@ function Home() {
         const startSignalRConnection = async () => {
             try {
                 if (connection && connection.state === "Disconnected") {
-                    await connection.start();
-                    console.log("Connected to SignalR");
+                    await connection.start().then(()=>{
+                        console.log("Connected to SignalR")
+                    }).catch((error)=>{
+                        console.log(error);
+                    });
                 } else {
                     console.log("SignalR already connected");
                 }
@@ -41,10 +45,8 @@ function Home() {
                 console.error("SignalR Connection Error: ", err);
             }
         };
-
         startSignalRConnection();
-
-    }, [connection]);
+    }, []);
 
     const toggleEmojiPicker = () => {
         setShowPicker(prev => !prev);
