@@ -2,7 +2,7 @@ import { HubConnectionBuilder } from '@microsoft/signalr';
 
 const token = localStorage.getItem("token");
 const connection = new HubConnectionBuilder()
-    .withUrl("http://192.168.2.152:6072/chatHub", {
+    .withUrl("https://683c-14-99-103-154.ngrok-free.app/chatHub", {
         accessTokenFactory: () => `Bearer ${token}`,
         withCredentials: false,
 
