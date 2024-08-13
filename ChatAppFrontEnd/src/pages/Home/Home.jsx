@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Grid, Box, Typography, Modal, IconButton, Avatar, TextField, InputAdornment } from '@mui/material';
+import { Grid, Box, Modal } from '@mui/material';
 import Header from '../../Components/Header/Header';
 import './Home.css';
 import { GetChatList, GetMessagesList } from '../../redux/slice/ChatSlice';
@@ -31,7 +31,7 @@ function Home() {
     useEffect(() => {
         const startSignalRConnection = async () => {
             try {
-                if (connection.state === "Disconnected") {
+                if (connection && connection.state === "Disconnected") {
                     await connection.start();
                     console.log("Connected to SignalR");
                 } else {
@@ -64,14 +64,12 @@ function Home() {
                 };
 
                 const response = await dispatch(GetChatList(data));
-                if (response.payload?.data) {
+                if (response.payload) {
                     setChatList((prevChatList) => [...response.payload.data.record, ...prevChatList]);
                 }
                 if (pageNumber == response.payload.data.requirdPage) {
                     setgetData(false);
                 }
-
-
 
             } catch (error) {
                 console.error('Error fetching chat list:', error);
@@ -95,6 +93,7 @@ function Home() {
         connection.on('MarkAsRead', handleMarkAsRead);
         connection.on('CreateChat', handleCreateChat);
         connection.on('UserDisconnected', handleUserDisconnected);
+        connection.on('ReactionMessages', handleMessageReaction);
 
         return () => {
             // Clean up event listeners when component unmounts or dependencies change
@@ -111,8 +110,9 @@ function Home() {
             if (selectedChat) {
                 try {
                     const response = await dispatch(GetMessagesList({ chatId: selectedChat.chatId }));
-                    if (response.payload?.data) {
+                    if (response.payload) {
                         setMessages(response.payload.data.record);
+                        
                     }
                 } catch (error) {
                     console.error('Error fetching chat messages:', error);
@@ -160,8 +160,6 @@ function Home() {
     };
 
     const handleSendMessage = async (message, replyMessId) => {
-        console.log(replyMessId);
-
         if (!message.trim()) return;
         try {
             let messageDTO = {};
@@ -170,9 +168,30 @@ function Home() {
             }
             else {
                 replyMessId = 0;
-                messageDTO = await connection.invoke("SendMessageToUser", selectedChat.toUserId, message, selectedChat.chatId , replyMessId);
+                messageDTO = await connection.invoke("SendMessageToUser", selectedChat.toUserId, message, selectedChat.chatId, replyMessId);
             }
             setMessages(prevMessages => [...prevMessages, messageDTO]);
+        } catch (error) {
+            console.error('Error sending message:', error);
+        }
+    };
+
+    const SendMessageReaction = async (messageId, reactionId) => {
+        try {
+            const reactionDTO = await connection.invoke("Sendmessagereaction", selectedChat.toUserId, messageId, reactionId);
+            setMessages(prevMessages => {
+                return prevMessages.map(message => {
+                    if (message.messagesId == reactionDTO.messageId) {
+                        if (message.reactionId == reactionId) {
+                            return { ...message, reactionId: null };
+                        } else {
+                            return { ...message, reactionId: reactionDTO.reactionId };
+                        }
+                    }
+                    return message;
+                });
+            });
+
         } catch (error) {
             console.error('Error sending message:', error);
         }
@@ -244,6 +263,21 @@ function Home() {
                 isOnline: true,
             } : chat
         ));
+    };
+    const handleMessageReaction = (reactionDTO) => {
+        setMessages(prevMessages => {
+            return prevMessages.map(message => {
+                if (message.messagesId == reactionDTO.messageId) {
+                    if (message.reactionId == reactionDTO.reactionId) {
+                        return { ...message, reactionId: null };
+                        
+                    } else {
+                        return { ...message, reactionId: reactionDTO.reactionId };
+                    }
+                }
+                return message;
+            });
+        });
     };
 
     const handleCreateChat = (chatDTO) => {
@@ -332,7 +366,7 @@ function Home() {
                     <Message selectedChat={selectedChat} messages={messages} onSendMessage={handleSendMessage}
                         onToggleEmojiPicker={toggleEmojiPicker} showPicker={showPicker}
                         onBack={BackChatList} messagesContainerRef={messagesContainerRef}
-                        ProfileUserId={setUserId} showProfile={openProfile}
+                        ProfileUserId={setUserId} showProfile={openProfile} SendMessageReaction={SendMessageReaction}
                     />
                 </Grid>
                 <Grid item className='hidden lg:inline-block' lg={3} xl={3}>
@@ -353,7 +387,7 @@ function Home() {
                         top: '50%',
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
-                        width: 400,
+                        width: 330,
                         bgcolor: 'background.paper',
                         boxShadow: 24,
                         minWidth: "25vw",

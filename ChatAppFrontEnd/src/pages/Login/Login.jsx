@@ -24,9 +24,9 @@ function Login() {
     const { isError, ErrorMessage, isLoading } = useSelectorUserState();
 
     const onSubmit = async (data) => {
-        
-            await disPatch(login(data));
-           
+
+        await disPatch(login(data));
+
     };
 
     // const login = useGoogleLogin({
@@ -53,7 +53,7 @@ function Login() {
     //     },
     //     [user]
     // );
-    
+
     return (
 
         <Grid container justifyContent="center" alignItems="center" mt={2} style={{ height: "90vh" }}>
@@ -84,7 +84,7 @@ function Login() {
                         required
                         {...register("password", { required: true, pattern: Regex.passwordRegex })}
                     />
-                    {errors.password && <p className="text-red-500">Password must be 7 to 15 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.</p>}
+                    {errors.password && <p className="text-red-500">Please Enter Valid Password (e.g."xyz123@")</p>}
 
                     {isError && (
                         <div className="text-center text-rose-500 mt-3">{ErrorMessage}</div>

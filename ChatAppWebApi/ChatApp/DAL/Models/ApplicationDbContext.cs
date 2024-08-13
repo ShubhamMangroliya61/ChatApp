@@ -19,6 +19,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<Message> Messages { get; set; }
 
+    public virtual DbSet<Reaction> Reactions { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -56,9 +58,16 @@ public partial class ApplicationDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("messages_fromuserid_fkey");
 
+            entity.HasOne(d => d.Reaction).WithMany(p => p.Messages).HasConstraintName("messages_reaction_fkey");
+
             entity.HasOne(d => d.Touser).WithMany(p => p.MessageTousers)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("messages_touserid_fkey");
+        });
+
+        modelBuilder.Entity<Reaction>(entity =>
+        {
+            entity.HasKey(e => e.Reactionid).HasName("reactions_pkey");
         });
 
         modelBuilder.Entity<User>(entity =>

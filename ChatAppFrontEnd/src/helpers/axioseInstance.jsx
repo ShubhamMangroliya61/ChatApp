@@ -1,7 +1,8 @@
 import axios from "axios";
+const baseurl = import.meta.env.VITE_BASE_URL;
 
 const axiosInstance = axios.create({
-  baseURL: 'https://localhost:7121',
+  baseURL: baseurl,
   withCredentials: false,
   headers: {
     'ngrok-skip-browser-warning': true

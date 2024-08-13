@@ -4,27 +4,36 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import { CaretLeft, PaperPlaneRight } from "@phosphor-icons/react";
 import CloseIcon from '@mui/icons-material/Close';
 import ReplyIcon from '@mui/icons-material/Reply';
-import { Avatar, Box, Divider, IconButton, Tooltip, Typography } from '@mui/material';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { Avatar, Box, Divider, IconButton, Menu, MenuItem, Tooltip, Typography } from '@mui/material';
 import { MessageBox } from 'react-chat-elements';
 import 'react-chat-elements/dist/main.css';
 import { Regex } from '../../constatns/Regex';
 import EmojiPicker from 'emoji-picker-react';
 import Chat from '../../assets/LoginImg.jpg'
 import moment from 'moment';
+import CopyToClipboard from 'react-copy-to-clipboard'
+import  { emojiMap } from '../../constatns/Emoji'
 
-const Message = ({ selectedChat, messages, onSendMessage, onBack, messagesContainerRef, onToggleEmojiPicker, showPicker, showProfile, ProfileUserId }) => {
+const Message = ({ selectedChat, messages, onSendMessage,SendMessageReaction, onBack, messagesContainerRef, onToggleEmojiPicker, showPicker, showProfile, ProfileUserId }) => {
     const [message, setMessage] = useState('');
     const [replyMessage, setReplyMessage] = useState({});
     const messagesEndRef = useRef(null);
+    const menuRef = useRef(null);
     const userId = localStorage.getItem("userId");
+    const [event, setEvent] = useState();
+    const [anchorEl, setAnchorEl] = useState(false);
+    const [openReplyBox, setOpenReplyBox] = useState(false);
 
     const handleSendMessage = () => {
         if (message.trim() !== '') {
             onSendMessage(message, replyMessage.messagesId);
             setMessage('');
-            setReplyMessage({});
+            setOpenReplyBox(false);
+            setReplyMessage("");
         }
     };
+
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -36,10 +45,11 @@ const Message = ({ selectedChat, messages, onSendMessage, onBack, messagesContai
     };
 
     const handleReplyClick = (message) => {
-        setReplyMessage(message);
+        setOpenReplyBox(true);
+        setAnchorEl(null);
     };
 
-    const screenWidth = window.innerWidth; // Get the current window width
+    const screenWidth = window.innerWidth;
 
     const renderBackButton = screenWidth < 599 && (
         <IconButton style={{ marginRight: '5px' }} onClick={onBack} className='inline-block md:hidden'>
@@ -48,14 +58,45 @@ const Message = ({ selectedChat, messages, onSendMessage, onBack, messagesContai
     );
 
     const clearTempMessage = () => {
+        setOpenReplyBox(false);
         setReplyMessage({});
     }
 
+    const handleClick = (e, msg) => {
+        setEvent(e);
 
-    const handleClick = (msg) => {
-        console.log(msg);
-        
+        setAnchorEl(prevAnchorEl => {
+            const newAnchorEl = !prevAnchorEl;
+            if (newAnchorEl) {
+                setReplyMessage(msg);
+
+            } else {
+                setReplyMessage(msg);
+
+            }
+            return newAnchorEl;
+        });
     };
+
+    const handleClickOutside = (e) => {
+        if (menuRef.current && !menuRef.current.contains(e.target)) {
+            setAnchorEl(false);
+            setReplyMessage("");
+        }
+    };
+
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const closeModal = () => {
+        setAnchorEl(false);
+        setReplyMessage("");
+    }
 
     return (
         selectedChat ? (
@@ -72,7 +113,6 @@ const Message = ({ selectedChat, messages, onSendMessage, onBack, messagesContai
                                         <FiberManualRecordIcon style={{ color: 'green', marginRight: '4px', fontSize: '13px', marginBottom: '2px' }} />
                                     )}
                                     {selectedChat?.isOnline ? "Online" : "Offline"}
-                                    {/* online */}
                                 </span>
                             </span>
                         </Typography>
@@ -81,8 +121,11 @@ const Message = ({ selectedChat, messages, onSendMessage, onBack, messagesContai
                 <Box
                     ref={messagesContainerRef}
                     id={selectedChat?.chatId}
-                    className={`flex-col overflow-y-auto ${showPicker ? 'h-[32vh]' : 'h-[73vh]'} 
-                    ${replyMessage.messagesId != null ? 'h-[60vh]' : 'h-[73vh]'}`}
+                    className={`flex-col relative overflow-y-auto ${showPicker && openReplyBox ? 'h-[20vh]' :
+                        showPicker ? 'h-[33vh]' :
+                            openReplyBox ? 'h-[60vh]' :
+                                'h-[73vh]'
+                        }`}
                 >
                     {messages.map((msg, index) => (
                         msg.chatId == selectedChat?.chatId && (
@@ -98,37 +141,76 @@ const Message = ({ selectedChat, messages, onSendMessage, onBack, messagesContai
                                         <Divider className="flex-grow" />
                                     </div>
                                 )}
-                                <MessageBox
-                                    {...(msg.replyOfMessageId && {
-                                        reply: {
-                                            title: msg.title,
-                                            titleColor: '#4f46e5',
-                                            message: msg.replyOfMessageText
-                                        }
-                                    })}
-                                    key={index}
-                                    position={msg.fromUserId == userId ? 'right' : 'left'}
-                                    titleColor="#7e22ce"
-                                    type='text'
-                                    text={msg.messageText}
-                                    date={new Date(msg.createdDate)}
-                                    replyButton={msg.fromUserId != userId}
-                                    status={msg.fromUserId == userId
-                                        ? (msg.isDeliverd && msg.isSeen ? 'read' :
-                                            msg.isDeliverd && !msg.isSeen ? 'received' :
-                                                'sent')
-                                        : ""}
-                                    dateString={new Date(msg.createdDate).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
-                                    onReplyClick={() => handleReplyClick(msg)}
-                                    onClick={() => handleClick(msg)}
-                                />
+                                <div className="relative pt-2 pb-2">
+                                    <MessageBox
+                                        {...(msg.replyOfMessageId && {
+                                            reply: {
+                                                title: msg.title,
+                                                titleColor: '#4f46e5',
+                                                message: msg.replyOfMessageText
+                                            }
+                                        })}
+                                        key={index}
+                                        position={msg.fromUserId == userId ? 'right' : 'left'}
+                                        titleColor="#7e22ce"
+                                        type='text'
+                                        text={msg.messageText}
+                                        date={new Date(msg.createdDate)}
+                                        replyButton={msg.fromUserId != userId}
+                                        status={msg.fromUserId == userId
+                                            ? (msg.isDeliverd && msg.isSeen ? 'read' :
+                                                msg.isDeliverd && !msg.isSeen ? 'received' :
+                                                    'sent')
+                                            : ""}
+                                        dateString={new Date(msg.createdDate).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                                        onReplyClick={(e) => handleClick(e, msg)}
+                                    />
+                                    { msg.reactionId != null && msg.fromUserId != userId ? (
+                                        <Box
+                                        className={`bg-purple-200 z-[10] ps-2 pe-2 w-fit rounded-2xl absolute  left-7 bottom-[-0.5rem]`}>
+                                            {emojiMap[msg.reactionId]}
+                                        </Box>) : (
+                                            <Box
+                                        className={`bg-violet-200 z-[10] ps-2 pe-2 w-fit rounded-2xl absolute  right-7 bottom-[-0.5rem]`}>
+                                            {emojiMap[msg.reactionId]}
+                                        </Box>) 
 
+                                        }
+
+                                    {anchorEl && msg.messagesId == replyMessage.messagesId && (
+                                        <Box ref={menuRef}
+                                            className="bg-violet-300 fixed rounded-lg p-2 text-center gap-2 flex flex-col items-center z-[1000] w-fit"
+                                            style={{ left: `${event.clientX - 10}px`, top: `${event.clientY + 20}px` }}
+                                        >
+                                            <div className="flex gap-2 mb-1">
+                                                <span className="text-yellow-500" onClick={()=> {SendMessageReaction(msg.messagesId,1); closeModal();} }>😊</span>
+                                                <span className="text-red-500" onClick={()=> {SendMessageReaction(msg.messagesId,2); closeModal(); }}>😍</span>
+                                                <span className="text-blue-500" onClick={()=>{SendMessageReaction(msg.messagesId,3); closeModal();}}>😂</span>
+                                                <span className="text-green-500" onClick={()=>{SendMessageReaction(msg.messagesId,4); closeModal();}}>👍</span>
+                                            </div>
+                                            <button
+                                                className="flex items-center gap-2 mb-2 p-1  text-black rounded hover:bg-violet-200"
+                                                onClick={() => handleReplyClick(msg)}
+                                            >
+                                                <ReplyIcon className="text-xl" />
+                                                <span >Reply</span>
+                                            </button>
+                                            <CopyToClipboard text={replyMessage.messageText}>
+                                                <button className="flex items-center hover:bg-violet-200 p-1"
+                                                    onClick={() => closeModal()}>
+                                                    <ContentCopyIcon className="text-lg me-1 " />
+                                                    <span>Copy</span>
+                                                </button>
+                                            </CopyToClipboard>
+
+                                        </Box>
+                                    )}
+                                </div>
                             </React.Fragment>
                         )
                     ))}
                     <div ref={messagesEndRef} />
                 </Box>
-
                 <Box>
                     {showPicker && (
                         <EmojiPicker
@@ -141,8 +223,8 @@ const Message = ({ selectedChat, messages, onSendMessage, onBack, messagesContai
                             }}
                         />
                     )}
-                    {replyMessage.messagesId != null &&
-                        <Box className="border rounded-lg border-s-4 border-s-indigo-600 p-4 pt-0 ms-2 me-2 h-[12vh]">
+                    {openReplyBox &&
+                        <Box className="border rounded-lg border-s-4 border-s-indigo-600 p-4 pt-0 ms-2 me-2 h-[13vh]">
                             <Box className="flex w-full justify-between items-center">
                                 <ReplyIcon className="text-gray-500 text-xl" />
                                 <IconButton
@@ -176,7 +258,6 @@ const Message = ({ selectedChat, messages, onSendMessage, onBack, messagesContai
                             </button>
                         </Box>
                     </Box>
-
                 </Box>
             </Box>
         ) : (

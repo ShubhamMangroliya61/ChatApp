@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, IconButton, Typography } from "@mui/material";
+import { Avatar, Box, IconButton } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { GetUserByUserName } from "../../redux/slice/UserSlice";

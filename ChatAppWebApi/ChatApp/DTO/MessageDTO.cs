@@ -12,6 +12,7 @@
         public long? ReplyOfMessageId { get; set; }
         public string? Title { get; set; }
         public string? ReplyOfMessageText { get; set; }
+        public long? ReactionId { get; set; }
         public DateTime? CreatedDate { get; set; }
 
     }

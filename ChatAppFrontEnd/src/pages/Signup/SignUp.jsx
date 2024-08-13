@@ -5,9 +5,9 @@ import CustomButton from '../../Components/shared/CustomButton';
 import { useForm } from 'react-hook-form';
 import { Regex } from '../../constatns/Regex';
 import { AllRoutes } from '../../constatns/Routes';
-import { useDispatch} from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { signup, useSelectorUserState } from '../../redux/slice/AuthSlice'; 
+import { signup, useSelectorUserState } from '../../redux/slice/AuthSlice';
 import LoaderComponent from '../../Components/Loader/Loader';
 import Logo from '../../assets/ChatLogo.png'
 
@@ -20,12 +20,12 @@ const SignUp = () => {
 
   const onSubmit = async (data) => {
     try {
-        const response = await dispatch(signup(data));
-        if (response.meta.requestStatus === 'fulfilled') {
-            navigate(AllRoutes.Login);
-        }
+      const response = await dispatch(signup(data));
+      if (response.meta.requestStatus === 'fulfilled') {
+        navigate(AllRoutes.Login);
+      }
     } catch (error) {
-        console.error('Error during signup:', error);
+      console.error('Error during signup:', error);
     }
   };
 
@@ -83,7 +83,7 @@ const SignUp = () => {
             required
             {...register("password", {
               required: "Password is required",
-              pattern: { value: Regex.passwordRegex, message: "Invalid Password" }
+              pattern: { value: Regex.passwordRegex, message: "Please Enter Valid Password (e.g.'xyz123@')" }
             })}
           />
           {errors.password && <p className="text-red-500">{errors.password.message}</p>}
@@ -99,8 +99,8 @@ const SignUp = () => {
           </div>
         </div>
       </Grid>
-      
-      
+
+
     </Grid>
   );
 };

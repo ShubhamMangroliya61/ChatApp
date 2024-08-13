@@ -9,5 +9,6 @@ namespace ChatAppWebApi.Interface
         Task<MessageDTO> SaveMessagesAsync(MessageReqDTO model);
         Task<List<long>> IsDelivredMessages(long userId);
         Task MarkAsReadMessages(long userId, long chatId);
+        Task SendMessageReaction(long messageId, long ReactionId);
     }
 }

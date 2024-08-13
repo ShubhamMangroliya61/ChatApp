@@ -15,7 +15,6 @@ const initialState = {
     success: false,
 };
 
-
 export const login = createAsyncThunk(
     'auth/login',
     async (data,thunkAPI) => {
@@ -135,7 +134,22 @@ const authSlice = createSlice({
                 state.ErrorMessage = action.payload.data[0]?.message ?? "Unknown error";
                 state.isError = true;
                 state.success = false;
-            });
+            })
+            .addCase(UserDataById.pending, (state) => {
+              state.isLoading = true;
+            })
+            .addCase(UserDataById.fulfilled, (state, action) => {
+              state.isLoading = false;
+              state.isError = false;
+              state.ErrorMessage = "";
+              state.success = true;
+            })
+            .addCase(UserDataById.rejected, (state, action) => {
+              state.isLoading = false;
+              state.ErrorMessage = action.payload?.message;
+              state.isError = true;
+              state.success = false;
+            })
     },
 });
 

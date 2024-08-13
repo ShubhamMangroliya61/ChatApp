@@ -43,6 +43,9 @@ public partial class Message
     [Column("replyofmessageid")]
     public long? Replyofmessageid { get; set; }
 
+    [Column("reactionid")]
+    public long? Reactionid { get; set; }
+
     [ForeignKey("Chatid")]
     [InverseProperty("Messages")]
     public virtual Chat Chat { get; set; } = null!;
@@ -50,6 +53,10 @@ public partial class Message
     [ForeignKey("Fromuserid")]
     [InverseProperty("MessageFromusers")]
     public virtual User Fromuser { get; set; } = null!;
+
+    [ForeignKey("Reactionid")]
+    [InverseProperty("Messages")]
+    public virtual Reaction? Reaction { get; set; }
 
     [ForeignKey("Touserid")]
     [InverseProperty("MessageTousers")]

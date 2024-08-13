@@ -1,4 +1,5 @@
 ﻿
+using ChatAppWebApi.DAL.Models;
 using ChatAppWebApi.DTO;
 using ChatAppWebApi.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ChatApp.Hubs
 {
-    public class ChatHub :Hub
+    public class ChatHub : Hub
     {
         private readonly IHubContext<ChatHub> _hubContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -32,7 +33,7 @@ namespace ChatApp.Hubs
         {
             string userId = GetClaimUserId();
             ConnectedUsers[userId] = Context.ConnectionId;
-            List<long> messId=await _messageService.IsDelivredMessages(Int32.Parse(userId));
+            List<long> messId = await _messageService.IsDelivredMessages(Int32.Parse(userId));
             await Clients.All.SendAsync("UserConnected", userId, messId);
             await base.OnConnectedAsync();
         }
@@ -61,10 +62,10 @@ namespace ChatApp.Hubs
             return claims.FirstOrDefault(m => m.Type == "UserId").Value;
         }
 
-        public async Task<MessageDTO> SendMessageToUser(long toUserId, string message,long chatId,long replyMessId)
+        public async Task<MessageDTO> SendMessageToUser(long toUserId, string message, long chatId, long replyMessId)
         {
             ConnectedUsers.TryGetValue(toUserId.ToString(), out var connectionId);
-            MessageReqDTO messReq = new ()
+            MessageReqDTO messReq = new()
             {
                 ChatId = chatId,
                 ToUserId = toUserId,
@@ -74,7 +75,7 @@ namespace ChatApp.Hubs
                 IsDeliverd = connectionId != null ? true : false
             };
 
-            MessageDTO messageDTO =await _messageService.SaveMessagesAsync(messReq);
+            MessageDTO messageDTO = await _messageService.SaveMessagesAsync(messReq);
 
             if (connectionId != null)
             {
@@ -87,7 +88,7 @@ namespace ChatApp.Hubs
         {
             ConnectedUsers.TryGetValue(toUserId.ToString(), out var connectionId);
 
-            ChatDTO chatDTO = await _chatService.CreateChatAsync(Int32.Parse(GetClaimUserId()),toUserId);
+            ChatDTO chatDTO = await _chatService.CreateChatAsync(Int32.Parse(GetClaimUserId()), toUserId);
 
             if (connectionId != null)
             {
@@ -97,13 +98,29 @@ namespace ChatApp.Hubs
             return chatDTO;
         }
 
-        public async Task MarkAsReadMessages(long userId,long chatId)
+        public async Task MarkAsReadMessages(long userId, long chatId)
         {
             await _messageService.MarkAsReadMessages(userId, chatId);
             if (ConnectedUsers.TryGetValue(userId.ToString(), out var connectionId))
             {
                 await _hubContext.Clients.Client(connectionId).SendAsync("MarkAsRead", userId, chatId);
             }
+        }
+
+        public async Task<ReactionDTO> Sendmessagereaction(long toUserId, long messageId, long reactionId)
+        {
+            await _messageService.SendMessageReaction(messageId,reactionId);
+            ReactionDTO reactionDTO = new ()
+            {
+                MessageId = messageId,
+                ReactionId = reactionId,
+                ToUserId = toUserId
+            };
+            if (ConnectedUsers.TryGetValue(toUserId.ToString(), out var connectionId))
+            {
+                await _hubContext.Clients.Client(connectionId).SendAsync("ReactionMessages", reactionDTO);
+            }
+            return reactionDTO;
         }
 
         public static string? GetConnectionId(string userId)

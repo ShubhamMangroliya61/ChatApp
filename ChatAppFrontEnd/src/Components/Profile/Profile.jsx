@@ -1,7 +1,7 @@
-import { Avatar, Box, Typography } from '@mui/material';
+import { Avatar, Box } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import CustomButton from '../shared/CustomButton';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import CustomInputField from '../shared/CustomInputField';
 import { updateProfilePicture, UpdateUserProfile, useSelectorUserDataState } from '../../redux/slice/UserSlice';
 import { Regex } from '../../constatns/Regex';
@@ -11,11 +11,12 @@ import { showToaster } from '../../utils/ToasterService';
 import { ToasterType } from '../../constatns/ToasterType';
 
 const Profile = ({ showProfile, ProfileUserId }) => {
-    const { control, handleSubmit, formState: { errors }, setValue, register } = useForm();
+    const { handleSubmit, formState: { errors }, setValue, register } = useForm();
     const [userData, setUserData] = useState("");
     const { user } = useSelectorUserDataState();
     const userId = localStorage.getItem("userId");
     const dispatch = useDispatch();
+
     useEffect(() => {
         if (user.userId != ProfileUserId) {
             const fetchData = async () => {
@@ -30,7 +31,7 @@ const Profile = ({ showProfile, ProfileUserId }) => {
             };
             fetchData();
         }
-    }, [ProfileUserId, user])
+    }, [ProfileUserId])
 
     useEffect(() => {
         const setData = (data) => {

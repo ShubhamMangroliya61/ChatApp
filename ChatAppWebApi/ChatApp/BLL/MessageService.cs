@@ -38,6 +38,7 @@ namespace ChatAppWebApi.BLL
                     ReplyOfMessageId =m.Replyofmessageid,
                     ReplyOfMessageText = _dbcontext.Messages.Where(n => n.Messageid == m.Replyofmessageid).Select(n => n.Messagetext).FirstOrDefault(),
                     Title = _dbcontext.Messages.Where(n => n.Messageid == m.Replyofmessageid).Select(n => n.Fromuser.Username).FirstOrDefault(),
+                    ReactionId = m.Reactionid,
                     CreatedDate = m.Createddate,
                 });
 
@@ -106,6 +107,22 @@ namespace ChatAppWebApi.BLL
             {
                 x.Isseen = true;
             });
+            await _dbcontext.SaveChangesAsync();
+        }
+
+        public async Task SendMessageReaction(long messageId,long ReactionId)
+        {
+            Message? message = await _dbcontext.Messages.FirstOrDefaultAsync(m => m.Messageid == messageId);
+
+            if (message != null && message.Reactionid == ReactionId)
+            {
+                message.Reactionid = null;
+            }
+            else
+            {
+                message.Reactionid = ReactionId;
+            }
+
             await _dbcontext.SaveChangesAsync();
         }
     }
