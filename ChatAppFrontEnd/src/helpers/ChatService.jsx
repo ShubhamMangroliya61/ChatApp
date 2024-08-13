@@ -6,7 +6,7 @@ const getToken =() =>{
    return `Bearer ${token}`
 }
 const connection = new HubConnectionBuilder()
-    .withUrl("https://683c-14-99-103-154.ngrok-free.app/chatHub", {
+    .withUrl("https://f6fa-14-99-103-154.ngrok-free.app/chatHub", {
         accessTokenFactory: ()=>getToken(),
         withCredentials: false,
 
