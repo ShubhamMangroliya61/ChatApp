@@ -2,12 +2,14 @@
 using ChatApp.Utils;
 using ChatAppWebApi.DTO;
 using ChatAppWebApi.Interface;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChatAppWebApi.Controllers
 {
     [Route("Auth")]
     [ApiController]
+    [EnableCors("AllowAll")]
     public class AuthController : ControllerBase
     {
         private readonly IValidationService _validationService;

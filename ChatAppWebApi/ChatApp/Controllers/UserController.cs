@@ -4,12 +4,15 @@ using ChatAppWebApi.DTO;
 using ChatAppWebApi.Interface;
 using InstagramWebAPI.Helpers;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChatApp.Controllers
 {
     [Route("User")]
     [ApiController]
+    [EnableCors("AllowAll")]
+
     public class UserController : ControllerBase
     {
         private readonly IValidationService _validationService;

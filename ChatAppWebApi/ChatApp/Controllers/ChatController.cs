@@ -4,6 +4,7 @@ using ChatAppWebApi.DTO;
 using ChatAppWebApi.Interface;
 using InstagramWebAPI.Helpers;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChatApp.Controllers
@@ -25,6 +26,8 @@ namespace ChatApp.Controllers
 
         [HttpPost("GetChatListAsync")]
         [Authorize]
+        [EnableCors("AllowAll")]
+
         public async Task<ActionResult> GetChatListAsync([FromBody] PaginationRequestDTO model)
         {
             try
