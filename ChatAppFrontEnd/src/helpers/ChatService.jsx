@@ -1,4 +1,4 @@
-import { HubConnectionBuilder } from '@microsoft/signalr';
+import { HubConnectionBuilder ,HttpTransportType } from '@microsoft/signalr';
 
 
 const getToken =() =>{
@@ -10,7 +10,7 @@ const connection = new HubConnectionBuilder()
         accessTokenFactory: ()=>getToken(),
         withCredentials: false,
         skipNegotiation: true,
-        transport: signalR.HttpTransportType.WebSockets
+        transport: HttpTransportType.WebSockets
     })
     .withAutomaticReconnect()
     .build();
