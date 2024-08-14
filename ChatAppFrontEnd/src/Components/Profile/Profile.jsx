@@ -49,8 +49,6 @@ const Profile = ({ showProfile, ProfileUserId }) => {
     }, [setValue, user, userData, ProfileUserId]);
 
     const onSubmit = async (userdataupdate) => {
-        console.log('Submitted data:', userdataupdate); // Debugging statement
-
         try {
             const userDataupdate = {
                 userId: userId,

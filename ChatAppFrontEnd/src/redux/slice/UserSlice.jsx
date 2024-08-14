@@ -52,8 +52,6 @@ export const UpdateUserProfile = createAsyncThunk(
   "/User/UpdateProfile",
   async (data) => {
     try {
-      console.log(data);
-      
       const response = await axiosInstance.post(`/User/UpdateProfile`, data);
       if (response.data.isSuccess) {
         return response.data;
