@@ -9,7 +9,8 @@ const connection = new HubConnectionBuilder()
     .withUrl("https://3664-14-99-103-154.ngrok-free.app/chatHub", {
         accessTokenFactory: ()=>getToken(),
         withCredentials: false,
-
+        skipNegotiation: true,
+        transport: signalR.HttpTransportType.WebSockets
     })
     .withAutomaticReconnect()
     .build();
