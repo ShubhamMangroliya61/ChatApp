@@ -32,9 +32,9 @@ const SignUp = () => {
   return (
     <Grid container justifyContent="center" alignItems="center" mt={2} style={{ height: "90vh" }}>
       <LoaderComponent isLoader={isLoading} />
-      <Grid item xs={12} sm={8} md={6} lg={4} xl={3}>
+      <Grid item xs={11} sm={8} md={6} lg={4} xl={3}>
         <div className="p-5 rounded-lg shadow-md border-2 border-gray-100 bg-zinc-50">
-          <img src={Logo} alt="Logo" className="w-32 h-auto mx-auto mb-5" />
+          <img src={Logo} alt="Logo" className="w-24 h-auto mx-auto mb-2" />
           <div className='ms-2 me-5 mb-5 font-serif text-lg font-bold text-indigo-600 text-center'>
             Share Your Smile With this world and find Friends
           </div>

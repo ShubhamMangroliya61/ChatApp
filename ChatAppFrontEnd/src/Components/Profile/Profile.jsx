@@ -158,23 +158,6 @@ const Profile = ({ showProfile, ProfileUserId }) => {
                             />
                             {errors.fullName && <p className="text-red-500">{errors.fullName.message}</p>}
 
-                            <CustomInputField
-                                label={window.innerWidth >= 1200 ? "ContactNumber" : null}
-                                placeholder="ContactNumber"
-                                type="tel"
-                                required={true}
-                                {...register("contactNumber", {
-                                    required: "ContactNumber is required",
-                                    pattern: {
-                                        value: Regex.phoneNumber,
-                                        message: "Please enter a valid ContactNumber"
-                                    }
-                                })}
-                            />
-                            {errors.contactNumber && (
-                                <p className="text-red-500">{errors.contactNumber.message}</p>
-                            )}
-
                             {ProfileUserId == userId && (
                                 <Box className="justify-end flex pt-3">
                                     <CustomButton title="Save" type="submit" className='rounded-md text-lg ps-10 pe-10 p-1 bg-indigo-500 text-white' />

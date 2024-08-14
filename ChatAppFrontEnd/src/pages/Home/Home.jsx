@@ -307,12 +307,11 @@ function Home() {
         const handleResize = () => {
             if (window.innerWidth >= 599) {
                 chatListRef.current.style.display = "";
-                chatRef.current.style.display = "";
-
+                // chatRef.current.style.display = "";
             }
-            if (window.innerWidth < 599) {
-                chatRef.current.style.display = "none";
-            }
+            // if (window.innerWidth < 599) {
+            //     // chatRef.current.style.display = "none";
+            // }
         };
 
         window.addEventListener('resize', handleResize);
