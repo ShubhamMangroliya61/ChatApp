@@ -1,4 +1,4 @@
-import { HubConnectionBuilder ,HttpTransportType } from '@microsoft/signalr';
+import { HubConnectionBuilder} from '@microsoft/signalr';
 
 
 const getToken =() =>{
@@ -6,12 +6,13 @@ const getToken =() =>{
    return `Bearer ${token}`
 }
 const connection = new HubConnectionBuilder()
-    .withUrl("https://27f9-14-99-103-154.ngrok-free.app/chatHub", {
+    .withUrl("https://5771-14-99-103-154.ngrok-free.app/chatHub", {
         accessTokenFactory: ()=>getToken(),
         withCredentials: false,
-        transport: HttpTransportType.WebSockets | HttpTransportType.LongPolling
+        // headers:{"ngrok-skip-browser-warning": "69420" , "Access-Control-Allow-Origin":"*"}
     })
     .withAutomaticReconnect()
     .build();
+
 
 export default connection;

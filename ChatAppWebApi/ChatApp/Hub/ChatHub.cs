@@ -3,6 +3,7 @@ using ChatAppWebApi.DAL.Models;
 using ChatAppWebApi.DTO;
 using ChatAppWebApi.Interface;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Concurrent;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace ChatApp.Hubs
 {
+    [EnableCors("AllowAll")]
     public class ChatHub : Hub
     {
         private readonly IHubContext<ChatHub> _hubContext;
