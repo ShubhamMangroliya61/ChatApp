@@ -20,6 +20,7 @@ const Message = ({ selectedChat, messages, onSendMessage,SendMessageReaction, on
     const [replyMessage, setReplyMessage] = useState({});
     const messagesEndRef = useRef(null);
     const menuRef = useRef(null);
+    const emojiRef = useRef(null);
     const userId = localStorage.getItem("userId");
     const [event, setEvent] = useState();
     const [anchorEl, setAnchorEl] = useState(false);
@@ -77,19 +78,30 @@ const Message = ({ selectedChat, messages, onSendMessage,SendMessageReaction, on
             return newAnchorEl;
         });
     };
-
     const handleClickOutside = (e) => {
         if (menuRef.current && !menuRef.current.contains(e.target)) {
             setAnchorEl(false);
             setReplyMessage("");
         }
+    
+        
     };
-
-
     useEffect(() => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const handleClickOutsideemoji = (e) => {
+        if (emojiRef.current && !emojiRef.current.contains(e.target)) {
+            onToggleEmojiPicker();
+        }
+    };
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutsideemoji);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutsideemoji);
         };
     }, []);
 
@@ -213,6 +225,7 @@ const Message = ({ selectedChat, messages, onSendMessage,SendMessageReaction, on
                 </Box>
                 <Box>
                     {showPicker && (
+                        <Box ref={emojiRef}>
                         <EmojiPicker
                             searchDisabled={true}
                             onEmojiClick={onEmojiClick}
@@ -222,6 +235,7 @@ const Message = ({ selectedChat, messages, onSendMessage,SendMessageReaction, on
                                 height: "40vh"
                             }}
                         />
+                        </Box>
                     )}
                     {openReplyBox &&
                         <Box className="border rounded-lg border-s-4 border-s-indigo-600 p-4 pt-0 ms-2 me-2 h-[13vh]">

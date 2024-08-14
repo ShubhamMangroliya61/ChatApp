@@ -67,7 +67,7 @@ const Chat = ({ chatList, loading, selectedChat, handleListItemClick, getData,op
                                                 className="border-2"
                                                 alt="Profile Picture"
                                                 src={chat.profileName ? `data:image/jpeg;base64,${chat.profileName}` : `data:image/jpeg;base64,${Regex.profile}`}
-                                                sx={{ width: 50, height: 50, marginRight: 1, marginLeft: 1 }}
+                                                sx={{ width: 50, height: 50, marginRight: 1}}
                                             />
 
                                             <div className='absolute right-1 top-10 transform -translate-y-1/2'>
