@@ -1,7 +1,7 @@
 import { Avatar, Box } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import CustomButton from '../shared/CustomButton';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import CustomInputField from '../shared/CustomInputField';
 import { updateProfilePicture, UpdateUserProfile, useSelectorUserDataState } from '../../redux/slice/UserSlice';
 import { Regex } from '../../constatns/Regex';
@@ -11,7 +11,7 @@ import { showToaster } from '../../utils/ToasterService';
 import { ToasterType } from '../../constatns/ToasterType';
 
 const Profile = ({ showProfile, ProfileUserId }) => {
-    const { handleSubmit, formState: { errors }, setValue, register } = useForm();
+    const { handleSubmit, formState: { errors }, setValue, control, register, reset } = useForm();
     const [userData, setUserData] = useState("");
     const { user } = useSelectorUserDataState();
     const userId = localStorage.getItem("userId");
@@ -31,16 +31,16 @@ const Profile = ({ showProfile, ProfileUserId }) => {
             };
             fetchData();
         }
-    }, [ProfileUserId])
+    }, [ProfileUserId]);
+
+
 
     useEffect(() => {
         const setData = (data) => {
-            setValue("email", data?.email || "");
-            setValue("contactNumber", data?.contactNumber || "");
-            setValue("username", data?.userName || "");
-            setValue("fullName", data?.name || "");
+            setValue("email", data.email || "");
+            setValue("username", data.userName || "");
+            setValue("fullName", data.name || "");
         };
-
         if (user.userId == ProfileUserId) {
             setData(user);
         } else {
@@ -48,21 +48,22 @@ const Profile = ({ showProfile, ProfileUserId }) => {
         }
     }, [setValue, user, userData, ProfileUserId]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (userdataupdate) => {
+        console.log('Submitted data:', userdataupdate); // Debugging statement
+
         try {
-            const userData = {
+            const userDataupdate = {
                 userId: userId,
-                email: data.email,
-                contactNumber: data.contactNumber,
-                userName: data.username,
-                name: data.fullName,
+                email: userdataupdate.email,
+                userName: userdataupdate.username,
+                name: userdataupdate.fullName,
             };
-            const response = await dispatch(UpdateUserProfile(userData));
+            const response = await dispatch(UpdateUserProfile(userDataupdate));
 
             if (response && response.payload.isSuccess) {
                 showToaster(ToasterType.Success, "Profile updated successfully.");
             } else {
-                showToaster(ToasterType.Error, payload.message ?? "Failed to update profile.");
+                showToaster(ToasterType.Error, response.payload.message ?? "Failed to update profile.");
             }
         } catch (error) {
             console.error('Error updating profile:', error);
@@ -80,8 +81,8 @@ const Profile = ({ showProfile, ProfileUserId }) => {
                 const success = await dispatch(updateProfilePicture(formData));
                 if (success) {
                     showToaster(ToasterType.Success, "Profile picture updated successfully.");
-                } else if (errorMessage) {
-                    showToaster(ToasterType.Error, errorMessage);
+                } else {
+                    showToaster(ToasterType.Error, "Failed to update profile picture.");
                 }
             } catch (error) {
                 console.error('Error updating profile picture:', error);
@@ -94,19 +95,17 @@ const Profile = ({ showProfile, ProfileUserId }) => {
             {showProfile ? (
                 <Box className="bg-gray-50 rounded-xl w-full mt-4 h-[90vh] text-center">
                     <Box className="flex justify-center pt-10">
-                        {/* <label htmlFor="upload-photo"> */}
                         <Avatar
                             alt="Profile Picture"
-                            src={ProfileUserId == userId
+                            src={ProfileUserId === userId
                                 ? user.profilePictureName
-                                    ? `data:image/jpeg;base64,${user.profilePictureName
-                                    }` : `data:image/jpeg;base64,${Regex.profile}`
+                                    ? `data:image/jpeg;base64,${user.profilePictureName}`
+                                    : `data:image/jpeg;base64,${Regex.profile}`
                                 : userData.profilePictureName
                                     ? `data:image/jpeg;base64,${userData.profilePictureName}`
                                     : `data:image/jpeg;base64,${Regex.profile}`}
                             sx={{ width: '130px', height: '130px' }}
                         />
-                        {/* </label> */}
                         <input
                             id="upload-photo"
                             type="file"
@@ -115,7 +114,7 @@ const Profile = ({ showProfile, ProfileUserId }) => {
                             style={{ display: 'none' }}
                         />
                     </Box>
-                    {ProfileUserId == userId && (
+                    {ProfileUserId === userId && (
                         <Box className="flex justify-center mt-4">
                             <CustomButton
                                 title="Change Profile"
@@ -126,45 +125,57 @@ const Profile = ({ showProfile, ProfileUserId }) => {
                         </Box>
                     )}
                     <Box className="p-8">
-                        <form onSubmit={handleSubmit(onSubmit)}>
-                            <CustomInputField
-                                label={window.innerWidth >= 1200 ? "Email" : null}
-                                placeholder="Please Enter your Email"
-                                type="text"
-                                required
-                                {...register("email", { required: true, pattern: Regex.emailRegex })}
-                            />
-                             {errors.email && <p className="text-red-500">Please enter a valid email address.</p>}
-                             
-                            <CustomInputField
-                                label={window.innerWidth >= 1200 ? "UserName" : null}
-                                placeholder="Username"
-                                type="text"
-                                required
-                                {...register("username", {
-                                    required: "Username is required",
-                                    pattern: { value: Regex.usernameRegex, message: "Invalid Username" }
-                                })}
-                            />
-                            {errors.username && <p className="text-red-500">{errors.username.message}</p>}
-                           
-
-                            <CustomInputField
-                                label={window.innerWidth >= 1200 ? "Full Name" : null}
-                                placeholder="Full Name"
-                                type="text"
-                                required
-                                {...register("fullName", { required: "Full Name is required" })}
-                            />
-                            {errors.fullName && <p className="text-red-500">{errors.fullName.message}</p>}
-
-                            {ProfileUserId == userId && (
-                                <Box className="justify-end flex pt-3">
-                                    <CustomButton title="Save" type="submit" className='rounded-md text-lg ps-10 pe-10 p-1 bg-indigo-500 text-white' />
-                                </Box>
+                        <Controller
+                            control={control}
+                            name="email"
+                            rules={{ required: true, pattern: Regex.emailRegex }}
+                            render={({ field }) => (
+                                <CustomInputField
+                                    label="Email"
+                                    id="email"
+                                    placeholder="Email"
+                                    error={errors.email && "Please enter a valid email address."}
+                                    {...field}
+                                />
                             )}
+                        />
 
-                        </form>
+                        {/* Username Field */}
+                        <Controller
+                            control={control}
+                            name="username"
+                            rules={{ required: true, pattern: Regex.usernameRegex }}
+                            render={({ field }) => (
+                                <CustomInputField
+                                    label="Username"
+                                    id="username"
+                                    placeholder="Username"
+                                    error={errors.username && "Invalid Username(e.g.'Xyzxyz_.')"}
+                                    {...field}
+                                />
+                            )}
+                        />
+                        {/* Full Name Field */}
+                        <Controller
+                            control={control}
+                            name="fullName"
+                            rules={{ required: true }}
+                            render={({ field }) => (
+                                <CustomInputField
+                                    label="Full Name"
+                                    id="fullName"
+                                    placeholder="Full Name"
+                                    error={errors.fullName && "Please enter your full name."}
+                                    {...field}
+                                />
+                            )}
+                        />
+
+                        {ProfileUserId === userId && (
+                            <Box className="justify-end flex pt-3">
+                                <CustomButton onClick={handleSubmit(onSubmit)} title="Save" type="submit" className='rounded-md text-lg ps-10 pe-10 p-1 bg-indigo-500 text-white' />
+                            </Box>
+                        )}
                     </Box>
                 </Box>
             ) : (

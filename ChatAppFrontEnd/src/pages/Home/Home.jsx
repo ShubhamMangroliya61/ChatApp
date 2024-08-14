@@ -309,9 +309,7 @@ function Home() {
                 chatListRef.current.style.display = "";
                 // chatRef.current.style.display = "";
             }
-            // if (window.innerWidth < 599) {
-            //     // chatRef.current.style.display = "none";
-            // }
+           
         };
 
         window.addEventListener('resize', handleResize);
@@ -400,7 +398,7 @@ function Home() {
             </Modal>
 
 
-            <div className="sidenav" id="mySidenav">
+            <div className="sidenav z-[1000]" id="mySidenav">
                 <button className="closebtn" onClick={toggleSlider}>
                     <X />
                 </button>

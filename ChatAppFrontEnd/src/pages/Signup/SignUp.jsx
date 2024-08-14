@@ -60,7 +60,7 @@ const SignUp = () => {
             required
             {...register("username", {
               required: "Username is required",
-              pattern: { value: Regex.usernameRegex, message: "Invalid Username" }
+              pattern: { value: Regex.usernameRegex, message: "Invalid Username(e.g.'Xyzxyz_.')" }
             })}
           />
           {errors.username && <p className="text-red-500">{errors.username.message}</p>}
