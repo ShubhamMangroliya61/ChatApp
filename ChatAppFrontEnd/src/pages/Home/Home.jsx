@@ -53,7 +53,7 @@ function Home() {
     };
     useEffect(() => {
         setLoading(true);
-        setTimeout(async () => { setLoading(false); }, 50000);
+        setTimeout(async () => { setLoading(false); }, 2000);
     }, [])
 
     useEffect(() => {
