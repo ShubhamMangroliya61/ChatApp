@@ -33,9 +33,9 @@ function Home() {
         const startSignalRConnection = async () => {
             try {
                 if (connection && connection.state === "Disconnected") {
-                    await connection.start().then(()=>{
+                    await connection.start().then(() => {
                         console.log("Connected to SignalR")
-                    }).catch((error)=>{
+                    }).catch((error) => {
                         console.log(error);
                     });
                 } else {
@@ -103,7 +103,6 @@ function Home() {
             connection.off('UserConnected', handleUserConnected);
             connection.off('MarkAsRead', handleMarkAsRead);
             connection.off('CreateChat', handleCreateChat);
-
         };
     }, [dispatch, selectedChat, userId]);
 
@@ -114,7 +113,6 @@ function Home() {
                     const response = await dispatch(GetMessagesList({ chatId: selectedChat.chatId }));
                     if (response.payload) {
                         setMessages(response.payload.data.record);
-                        
                     }
                 } catch (error) {
                     console.error('Error fetching chat messages:', error);
@@ -272,7 +270,7 @@ function Home() {
                 if (message.messagesId == reactionDTO.messageId) {
                     if (message.reactionId == reactionDTO.reactionId) {
                         return { ...message, reactionId: null };
-                        
+
                     } else {
                         return { ...message, reactionId: reactionDTO.reactionId };
                     }
@@ -309,7 +307,7 @@ function Home() {
                 chatListRef.current.style.display = "";
                 // chatRef.current.style.display = "";
             }
-           
+
         };
 
         window.addEventListener('resize', handleResize);
@@ -378,8 +376,7 @@ function Home() {
                 open={openModal}
                 onClose={closeModalHandler}
                 aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-            >
+                aria-describedby="modal-modal-description">
                 <Box
                     sx={{
                         position: 'absolute',
@@ -391,8 +388,7 @@ function Home() {
                         boxShadow: 24,
                         minWidth: "25vw",
                         borderRadius: 2,
-                    }}
-                >
+                    }}>
                     <SearchUser closeModalHandler={closeModalHandler} CreateChat={CreateChat} />
                 </Box>
             </Modal>

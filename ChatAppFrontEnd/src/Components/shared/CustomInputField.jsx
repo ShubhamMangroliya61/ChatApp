@@ -1,7 +1,6 @@
 // CustomInputField.jsx
 import React from 'react';
 import TextField from '@mui/material/TextField';
-import PropTypes from 'prop-types';
 
 const CustomInputField = React.forwardRef(
     (

@@ -9,7 +9,6 @@ const connection = new HubConnectionBuilder()
     .withUrl(`${baseurl}/chatHub`, {
         accessTokenFactory: ()=>getToken(),
         withCredentials: false,
-        // headers:{"ngrok-skip-browser-warning": "69420" , "Access-Control-Allow-Origin":"*"}
     })
     .withAutomaticReconnect()
     .build();

@@ -100,7 +100,6 @@ const SearchUser = ({ closeModalHandler, CreateChat }) => {
       >
         {suggestions.map((item, index) => (
           <Box key={item.userId} className="rounded-md border-s-indigo-600 border-s-8 ms-3 me-3 bg-purple-50">
-            {/* <SearchUserList key={index} SearchUser={item} /> */}
             <Box key={index} display="flex" alignItems="center" justifyContent="space-between" margin={1} className="p-2">
               <div className='flex items-center'>
                 <Avatar alt="Profile Picture" src={item.profilePictureName ?`data:image/jpeg;base64,${item.profilePictureName}`: `data:image/jpeg;base64,${Regex.profile}`} sx={{ width: 50, height: 50, marginRight: 1, marginLeft: 1 }} className='border-2' />

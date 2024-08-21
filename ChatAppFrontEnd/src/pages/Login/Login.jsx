@@ -84,7 +84,7 @@ function Login() {
                         required
                         {...register("password", { required: true, pattern: Regex.passwordRegex })}
                     />
-                    {errors.password && <p className="text-red-500">Please Enter Valid Password (e.g."xyz123@")</p>}
+                    {errors.password && <p className="text-red-500">Please Enter Valid Password (e.g."Xyz123@")</p>}
 
                     {isError && (
                         <div className="text-center text-rose-500 mt-3">{ErrorMessage}</div>
