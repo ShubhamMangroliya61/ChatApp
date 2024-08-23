@@ -9,8 +9,6 @@ import { isTokenValid } from './utils/AuthService';
 const App = () => {
   const dispatch = useDispatch();
   const location = useLocation();
-  const { isLoggedIn } = useSelectorUserState();
-  
   const validateToken = () => {
     const token = localStorage.getItem("token");
     return token ? isTokenValid() : false;
